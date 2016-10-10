@@ -21,7 +21,7 @@ var palette = []color.Color{color.Black, red, yellow, green, cyan, blue}
 
 func main() {
 	http.HandleFunc("/", lissajous)
-	http.ListenAndServe("raspberrypi2:8000", nil)
+	http.ListenAndServe(":8000", nil)
 }
 
 func lissajous(w http.ResponseWriter, r *http.Request) {

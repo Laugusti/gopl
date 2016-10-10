@@ -9,7 +9,7 @@ import (
 
 func main() {
 	http.HandleFunc("/", handler)
-	log.Fatal(http.ListenAndServe("raspberrypi2:8000", nil))
+	log.Fatal(http.ListenAndServe(":8000", nil))
 }
 
 // handler echoes the Path component of the requested URL
