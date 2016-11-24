@@ -35,6 +35,7 @@ func lissajous(w http.ResponseWriter, r *http.Request) {
 		parsedVal, err := strconv.ParseInt(val, 10, 32)
 		if err != nil {
 			fmt.Fprintf(w, "Invalid cycles parameter: %v\n", val)
+			return
 		}
 		cycles = int(parsedVal)
 	}
@@ -43,6 +44,7 @@ func lissajous(w http.ResponseWriter, r *http.Request) {
 		parsedVal, err := strconv.ParseFloat(val, 64)
 		if err != nil {
 			fmt.Fprintf(w, "Invalid res parameter: %v\n", val)
+			return
 		}
 		res = parsedVal
 	}
@@ -51,6 +53,7 @@ func lissajous(w http.ResponseWriter, r *http.Request) {
 		parsedVal, err := strconv.ParseInt(val, 10, 32)
 		if err != nil {
 			fmt.Fprintf(w, "Invalid size parameter: %v\n", val)
+			return
 		}
 		size = int(parsedVal)
 	}
@@ -59,6 +62,7 @@ func lissajous(w http.ResponseWriter, r *http.Request) {
 		parsedVal, err := strconv.ParseInt(val, 10, 32)
 		if err != nil {
 			fmt.Fprintf(w, "Invalid nframes parameter: %v\n", val)
+			return
 		}
 		nframes = int(parsedVal)
 	}
@@ -67,6 +71,7 @@ func lissajous(w http.ResponseWriter, r *http.Request) {
 		parsedVal, err := strconv.ParseInt(val, 10, 32)
 		if err != nil {
 			fmt.Fprintf(w, "Invalid delay parameter: %v\n", val)
+			return
 		}
 		delay = int(parsedVal)
 	}
