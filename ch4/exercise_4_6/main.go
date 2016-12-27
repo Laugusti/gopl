@@ -4,6 +4,7 @@ package main
 import (
 	"fmt"
 	"unicode"
+	"unicode/utf8"
 )
 
 func main() {
@@ -13,20 +14,24 @@ func main() {
 }
 
 func joinSpaces(bytes []byte) []byte {
-	i := 0
+	length := 0
 	lastRuneIsSpace := false
-	for _, b := range bytes {
-		if unicode.IsSpace(rune(b)) {
+	for i := 0; i < len(bytes); {
+		r, size := utf8.DecodeRune(bytes[i:])
+		if unicode.IsSpace(r) {
 			if !lastRuneIsSpace {
 				lastRuneIsSpace = true
-				bytes[i] = ' '
-				i++
+				bytes[length] = ' '
+				length++
 			}
 		} else {
 			lastRuneIsSpace = false
-			bytes[i] = b
-			i++
+			for j := 0; j < size; j++ {
+				bytes[length+j] = bytes[i+j]
+			}
+			length += size
 		}
+		i += size
 	}
-	return bytes[:i]
+	return bytes[:length]
 }
