@@ -8,7 +8,7 @@ import (
 )
 
 func ElementByID(doc *html.Node, id string) *html.Node {
-	return forEachNode(doc, id, startElement, endElement)
+	return forEachNode(doc, id, startElement, nil)
 }
 
 // forEachNode calls the functions pre(x) and post(x) for each node
@@ -31,11 +31,6 @@ func forEachNode(n *html.Node, id string, pre, post func(*html.Node, string) boo
 }
 
 func startElement(n *html.Node, id string) (found bool) {
-	found = getNodeID(n) == id
-	return
-}
-
-func endElement(n *html.Node, id string) (found bool) {
 	found = getNodeID(n) == id
 	return
 }
