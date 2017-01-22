@@ -88,7 +88,7 @@ func BenchmarkStableSort1K(b *testing.B) {
 	}
 }
 
-func BenchmarkTrackSorter(b *testing.B) {
+func BenchmarkTrackSorter1K(b *testing.B) {
 	b.StopTimer()
 	for i := 0; i < b.N; i++ {
 		t1 := createTracks(1000, 100)
