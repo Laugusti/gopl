@@ -47,9 +47,7 @@ var trackList = template.Must(template.New("trackList").Parse(`
 
 func main() {
 	http.HandleFunc("/", handler)
-	if err := http.ListenAndServe(":8000", nil); err != nil {
-		log.Fatal(err)
-	}
+	log.Fatal(http.ListenAndServe(":8000", nil))
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
