@@ -1,0 +1,70 @@
+<html>
+<head>
+<title>Go Calculator</title>
+</head>
+<body bgcolor= "#000000" text="red">
+<form name="calculator">
+	<input type="textfield" id="expr" name="expr" value="{{.Res}}">
+	{{if .Err}} <span>{{.Err}}</span> {{end}}
+	<br>
+	<table>
+	<tr>
+		<td><input type="reset" value="reset"></td>
+		<td><input type="button" value="clr" onClick="clearExpression()"></td>
+		<td><input type="button" value="<-" onClick="deleteLastChar()"></td>
+		<td><input type="button" value="(" onClick="addToExpression('(')"></td>
+		<td><input type="button" value=")" onClick="addToExpression(')')"></td>
+	</tr>
+	<tr>
+		<td><input type="button" value="sin" onClick="addToExpression('sin(')"></td>
+		<td><input type="button" value="7" onClick="addToExpression('7')"></td>
+		<td><input type="button" value="8" onClick="addToExpression('8')"></td>
+		<td><input type="button" value="9" onClick="addToExpression('9')"></td>
+		<td><input type="button" value="/" onClick="addToExpression('/')"></td>
+	</tr>
+	<tr>
+		<td><input type="button" value="pow" onClick="addToExpression('pow(')"></td>
+		<td><input type="button" value="4" onClick="addToExpression('4')"></td>
+		<td><input type="button" value="5" onClick="addToExpression('5')"></td>
+		<td><input type="button" value="6" onClick="addToExpression('6')"></td>
+		<td><input type="button" value="*" onClick="addToExpression('*')"></td>
+	</tr>
+	<tr>
+		<td><input type="button" value="sqrt" onClick="addToExpression('sqrt(')"></td>
+		<td><input type="button" value="1" onClick="addToExpression('1')"></td>
+		<td><input type="button" value="2" onClick="addToExpression('2')"></td>
+		<td><input type="button" value="3" onClick="addToExpression('3')"></td>
+		<td><input type="button" value="-" onClick="addToExpression('-')"></td>
+	</tr>
+	<tr>
+		<td><input type="button" value="min" onClick="addToExpression('min(')"></td>
+		<td><input type="button" value="0" onClick="addToExpression('0')"></td>
+		<td><input type="button" value="." onClick="addToExpression('.')"></td>
+		<td><input type="button" value="+" onClick="addToExpression('+')"></td>
+		<td><input type="submit" value="="></td>
+	</tr>
+	</table>
+</form>
+<script>
+	function deleteLastChar() {
+		document.calculator.expr.value=document.calculator.expr.value.slice(0, -1)
+	}
+	function clearExpression() {
+		document.calculator.expr.value = ''
+	}
+	function addToExpression(input) {
+		document.calculator.expr.value += input
+	}
+	function getParameterByName(name, url) {
+		var url = window.location.href;
+		name = name.replace(/[\[\]]/g, "\\$&");
+		var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+			results = regex.exec(url);
+		if (!results) return null;
+		if (!results[2]) return '';
+		return decodeURIComponent(results[2].replace(/\+/g, " "));
+	}
+	{{if .Err}} document.getElementById("expr").value = getParameterByName("expr") {{end}}
+</script>
+</body>
+</html>
