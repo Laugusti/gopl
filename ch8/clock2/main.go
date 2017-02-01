@@ -25,7 +25,7 @@ func main() {
 			log.Print(err) // e.g., connection aborted
 			continue
 		}
-		go handleConn(conn) // handle one connection at a time
+		go handleConn(conn) // create a goroutine for each connection
 	}
 }
 
