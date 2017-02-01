@@ -197,7 +197,7 @@ func (s *FTPSession) processList(args string) error {
 		return err
 	}
 
-	return s.writeToDataConn(func(c net.Conn) error {
+	return s.doWithDataConn(func(c net.Conn) error {
 		// write filenames to data connection
 		for _, f := range files {
 			_, err := io.WriteString(c, f+"\r\n")
@@ -223,7 +223,7 @@ func (s *FTPSession) processRetr(args string) error {
 		return err
 	}
 
-	return s.writeToDataConn(func(c net.Conn) error {
+	return s.doWithDataConn(func(c net.Conn) error {
 		// write bytes to data connection
 		_, err = c.Write(b)
 		return err
@@ -239,7 +239,7 @@ func (s *FTPSession) processStor(args string) error {
 	}
 
 	// TODO: check for invalid directory error
-	return s.readFromDataConn(func(c net.Conn) error {
+	return s.doWithDataConn(func(c net.Conn) error {
 		return s.cwd.StoreFile(args, c)
 	})
 }
@@ -259,22 +259,22 @@ func (s *FTPSession) writeControlResponse(response string) error {
 	return err
 }
 
-// writeToDataConn calls the write function on the data connection
-func (s *FTPSession) writeToDataConn(write func(net.Conn) error) error {
+// doWithDataConn calls the function on the data connection
+func (s *FTPSession) doWithDataConn(action func(net.Conn) error) error {
 	// open the connection, if it is closed
 	err := s.dataConn.createConnection()
 	if err != nil {
 		return s.writeControlResponse(cantOpenDataConn)
 	}
 
-	// start data transfer
+	// begin data transfer
 	err = s.writeControlResponse(startingTransfer)
 	if err != nil {
 		return err
 	}
 
-	// write to data connection
-	err = write(s.dataConn.conn)
+	// call function on data connection
+	err = action(s.dataConn.conn)
 	if err != nil {
 		return err
 	}
@@ -282,35 +282,9 @@ func (s *FTPSession) writeToDataConn(write func(net.Conn) error) error {
 	// close data connection
 	s.dataConn.conn.Close()
 	s.dataConn.conn = nil
-	err = s.writeControlResponse(closingDataConn)
-	return err
-}
 
-// readFromDataConn calls the read function on the data connection
-func (s *FTPSession) readFromDataConn(read func(net.Conn) error) error {
-	// open the connection, if it is closed
-	err := s.dataConn.createConnection()
-	if err != nil {
-		return s.writeControlResponse(cantOpenDataConn)
-	}
-
-	// start data transfer
-	err = s.writeControlResponse(startingTransfer)
-	if err != nil {
-		return err
-	}
-
-	//read from data connection
-	err = read(s.dataConn.conn)
-	if err != nil {
-		return err
-	}
-
-	// close data connection
-	s.dataConn.conn.Close()
-	s.dataConn.conn = nil
-	err = s.writeControlResponse(closingDataConn)
-	return err
+	// end data transfer
+	return s.writeControlResponse(closingDataConn)
 }
 
 // createConnection creates the data connection
