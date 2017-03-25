@@ -11,6 +11,7 @@ import (
 	"golang.org/x/net/html"
 )
 
+// lock used to only allow a single thread to create a file at a time
 var lock = make(chan struct{}, 1)
 
 // WithSameDomain returns elements of list with the same domain as url.
@@ -38,12 +39,21 @@ func SaveUrl(url string) error {
 	}
 
 	var isHtml bool
-	if ct := resp.Header.Get("Content-Type"); ct != "text/html" && !strings.HasPrefix(ct, "text/html;") {
+	if ct := resp.Header.Get("Content-Type"); ct == "text/html" || strings.HasPrefix(ct, "text/html;") {
 		isHtml = true
 	}
 
+	return writeToFile(url, resp.Body, isHtml)
+}
+
+func writeToFile(url string, r io.Reader, isHtml bool) error {
+	// acquire lock at start and release at end
+	lock <- struct{}{}
+	defer func() { <-lock }()
+
 	fpath, fname := getPathAndNameFromURL(url, isHtml)
 	file, err := createFile(fpath, fname)
+
 	if err != nil {
 		return fmt.Errorf("creating file %s: %s", url, err)
 	}
@@ -51,17 +61,17 @@ func SaveUrl(url string) error {
 
 	// check Content.Type is HTML (e.g., "text/html; charset=utf-8").
 	if isHtml {
-		doc, err := html.Parse(resp.Body)
+		doc, err := html.Parse(r)
 		if err != nil {
 			return fmt.Errorf("creating html doc for %s: %s", url, err)
 		}
 
-		_, err = file.WriteString(prettyPrint(url, doc))
+		_, err = file.WriteString(PrettyPrint(url, doc))
 		if err != nil {
 			return fmt.Errorf("writing %s: %s", url, err)
 		}
 	} else {
-		_, err := io.Copy(file, resp.Body)
+		_, err := io.Copy(file, r)
 		if err != nil {
 			return fmt.Errorf("writing %s: %s", url, err)
 		}
@@ -71,16 +81,11 @@ func SaveUrl(url string) error {
 
 // create a file using the filepath and filename
 func createFile(fpath, fname string) (*os.File, error) {
-	// acquire lock at start and release when at end
-	lock <- struct{}{}
-	defer func() { <-lock }()
-
 	err := os.MkdirAll(fpath, os.ModePerm)
 	if err != nil {
 		return nil, err
 	}
-	// TODO: use filepath.Join
-	return os.Create(fpath + string(os.PathSeparator) + fname)
+	return os.Create(filepath.Join(fpath, fname))
 }
 
 // removes the scheme from the url (inluding www.)
@@ -110,7 +115,7 @@ func getDomainFromURL(url string) string {
 }
 
 // splits a url into a filepath and filename
-func getPathAndNameFromURL(url string, isHtml bool) (fpath, fname string) {
+func getPathAndNameFromURL(url string, isHtml bool) (string, string) {
 	url = strings.TrimRight(stripSchemeFromURL(url), "/")
 
 	// if content type is html and not end in html (use index.html)
@@ -118,12 +123,12 @@ func getPathAndNameFromURL(url string, isHtml bool) (fpath, fname string) {
 		return url, "index.html"
 	}
 
-	fpath, fname = filepath.Split(url)
+	fpath, fname := filepath.Split(url)
 	if fpath == "" {
 		fpath, fname = fname, "index.html"
 	}
 	if fname == "" {
 		fname = "index.html"
 	}
-	return
+	return fpath, fname
 }

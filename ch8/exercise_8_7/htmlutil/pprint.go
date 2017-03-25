@@ -15,9 +15,9 @@ type document struct {
 
 const indent = 2
 
-// prettyPrint returns a html.Node as a string, replacing absolute links
+// PrettyPrint returns a html.Node as a string, replacing absolute links
 // in the same domain with relative links.
-func prettyPrint(url string, n *html.Node) string {
+func PrettyPrint(url string, n *html.Node) string {
 	doc := &document{}
 	start := func(n *html.Node) {
 		doc.startElement(getDomainFromURL(url), n)
