@@ -77,22 +77,22 @@ func handleConn(conn net.Conn) {
 	input := bufio.NewScanner(conn)
 
 	// create channel/goroutine for input.Scan()
-	dataReady := make(chan bool)
+	msgChannel := make(chan string)
 	go func() {
 		for input.Scan() {
-			dataReady <- true
+			msgChannel <- input.Text()
 		}
 		// NOTE: ignoring potential errors from input.Err()
-		close(dataReady)
+		close(msgChannel)
 	}()
 
 loop:
 	for {
 		// wait until maxInactivity for goroutine to send data to channel
 		select {
-		case hasData := <-dataReady:
-			if hasData {
-				messages <- who + ": " + input.Text()
+		case msg, ok := <-msgChannel:
+			if ok {
+				messages <- who + ": " + msg
 			} else {
 				break loop
 			}
