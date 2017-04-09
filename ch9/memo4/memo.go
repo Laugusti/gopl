@@ -1,4 +1,4 @@
-// Package memo provides a concurrency-unsafe
+// Package memo provides a concurrency-safe
 // memoization of a function of type Func.
 package memo
 
@@ -30,7 +30,6 @@ func New(f Func) *Memo {
 	return &Memo{f: f, cache: make(map[string]*entry)}
 }
 
-// NOTE: not concurrency-safe!
 func (memo *Memo) Get(key string) (interface{}, error) {
 	memo.mu.Lock()
 	e := memo.cache[key]
