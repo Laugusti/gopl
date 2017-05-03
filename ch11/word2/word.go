@@ -6,7 +6,7 @@ import (
 )
 
 // IsPalindrome reports whether s reads the same forward and backward.
-// (Our first attempt.)
+// Letter case is ignored, as are non-letters.
 func IsPalindrome(s string) bool {
 	var letters []rune
 	for _, r := range s {
