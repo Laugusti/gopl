@@ -51,7 +51,7 @@ func TestMarshalFloat(t *testing.T) {
 			t.Fatal(err)
 		}
 		if test.want != string(got) {
-			t.Errorf("TestMarshalBool => input: %v, expected: %v, got: %v", test.value, test.want, string(got))
+			t.Errorf("TestMarshalFloat => input: %v, expected: %v, got: %v", test.value, test.want, string(got))
 		}
 	}
 	for _, test := range tests_64 {
@@ -60,7 +60,7 @@ func TestMarshalFloat(t *testing.T) {
 			t.Fatal(err)
 		}
 		if test.want != string(got) {
-			t.Errorf("TestMarshalBool => input: %v, expected: %v, got: %v", test.value, test.want, string(got))
+			t.Errorf("TestMarshalFloat => input: %v, expected: %v, got: %v", test.value, test.want, string(got))
 		}
 	}
 }
@@ -80,7 +80,7 @@ func TestMarshalComplex(t *testing.T) {
 			t.Fatal(err)
 		}
 		if test.want != string(got) {
-			t.Errorf("TestMarshalBool => input: %v, expected: %v, got: %v", test.value, test.want, string(got))
+			t.Errorf("TestMarshalComplex => input: %v, expected: %v, got: %v", test.value, test.want, string(got))
 		}
 	}
 }
@@ -104,7 +104,7 @@ func TestMarshalInterface(t *testing.T) {
 			t.Fatal(err)
 		}
 		if test.want != string(got) {
-			t.Errorf("TestMarshalBool => input: %v, expected: %v, got: %v", test.value, test.want, string(got))
+			t.Errorf("TestMarshalInterface => input: %v, expected: %v, got: %v", test.value, test.want, string(got))
 		}
 	}
 }
@@ -124,7 +124,7 @@ func TestMarshalSlice(t *testing.T) {
 			t.Fatal(err)
 		}
 		if test.want != string(got) {
-			t.Errorf("TestMarshalBool => input: %v, expected: %v, got: %v", test.value, test.want, string(got))
+			t.Errorf("TestMarshalSlice => input: %v, expected: %v, got: %v", test.value, test.want, string(got))
 		}
 	}
 }
@@ -146,7 +146,7 @@ func TestMarshalMap(t *testing.T) {
 			t.Fatal(err)
 		}
 		if test.want != string(got) {
-			t.Errorf("TestMarshalBool => input: %v, expected: %v, got: %v", test.value, test.want, string(got))
+			t.Errorf("TestMarshalMap => input: %v, expected: %v, got: %v", test.value, test.want, string(got))
 		}
 	}
 }
@@ -178,7 +178,7 @@ func TestMarshalStruct(t *testing.T) {
 			t.Fatal(err)
 		}
 		if test.want != string(got) {
-			t.Errorf("TestMarshalBool => input: %v, expected: %v, got: %v", test.value, test.want, string(got))
+			t.Errorf("TestMarshalStruct => input: %v, expected: %v, got: %v", test.value, test.want, string(got))
 		}
 	}
 }
