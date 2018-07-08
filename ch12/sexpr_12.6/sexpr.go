@@ -113,6 +113,6 @@ func Unmarshal(data []byte, out interface{}) (err error) {
 			err = fmt.Errorf("error at %s: %v", lex.scan.Position, x)
 		}
 	}()
-	read(lex, reflect.ValueOf(&out).Elem())
+	read(lex, reflect.ValueOf(out).Elem())
 	return nil
 }
