@@ -6,7 +6,7 @@ import (
 	"reflect"
 )
 
-// A Decoder reads an decodes a S-Expression from an input stream.
+// A Decoder reads a S-Expression from an input stream.
 type Decoder struct {
 	r   io.Reader
 	lex *lexer
