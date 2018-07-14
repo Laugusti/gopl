@@ -42,13 +42,6 @@ type lexer struct {
 func (lex *lexer) next()        { lex.token = lex.scan.Scan() }
 func (lex *lexer) text() string { return lex.scan.TokenText() }
 
-func (lex *lexer) consume(want rune) {
-	if lex.token != want { // NOTE: Not an example of good error handling.
-		panic(fmt.Sprintf("got %q, want %q", lex.text(), want))
-	}
-	lex.next()
-}
-
 // Token returns the next S-expression token in the input stream.
 // At the end of the input stream, Token returns nil, io.EOF.
 func (dec *Decoder) Token() (Token, error) {

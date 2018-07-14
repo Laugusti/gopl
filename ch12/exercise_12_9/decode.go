@@ -58,54 +58,33 @@ func setValueFromToken(dec *Decoder, tok Token, v reflect.Value) {
 func decodeList(dec *Decoder, v reflect.Value) {
 	switch v.Kind() {
 	case reflect.Array: // (item ...)
-		for i := 0; ; i++ {
-			tok, endOfList := getToken(dec)
-			if endOfList {
-				break
-			}
+		doUntilEndofList(dec, func(i int, tok Token) {
 			setValueFromToken(dec, tok, v.Index(i))
-		}
+		})
 	case reflect.Slice: // (item ...)
-		for i := 0; ; i++ {
-			tok, endOfList := getToken(dec)
-			if endOfList {
-				break
-			}
+		doUntilEndofList(dec, func(i int, tok Token) {
 			item := reflect.New(v.Type().Elem()).Elem()
 			setValueFromToken(dec, tok, item)
 			v.Set(reflect.Append(v, item))
-		}
+		})
 	case reflect.Struct: // ((name value) ...)
-		for i := 0; ; i++ {
-			tok, endOfList := getToken(dec)
-			if endOfList {
-				break
-			}
-			if _, isStartList := tok.(StartList); !isStartList {
-				panic(fmt.Sprintf("wanted StartList, got %T", tok))
-			}
+		doUntilEndofList(dec, func(i int, tok Token) {
+			typeMustMatch(StartList{}, tok)
+
 			tok, _ = getToken(dec)
-			if _, isSymbol := tok.(Symbol); !isSymbol {
-				panic(fmt.Sprintf("wanted Symbol, got %T", tok))
-			}
+			typeMustMatch(Symbol{}, tok)
 			name := tok.(Symbol).Name
 			tok, _ = getToken(dec)
 			setValueFromToken(dec, tok, v.FieldByName(name))
+
 			tok, _ = getToken(dec)
-			if _, isEnd := tok.(EndList); !isEnd {
-				panic(fmt.Sprintf("wanted EndList, got %T", tok))
-			}
-		}
+			typeMustMatch(EndList{}, tok)
+		})
 	case reflect.Map: // ((key value) ...)
 		v.Set(reflect.MakeMap(v.Type()))
-		for i := 0; ; i++ {
-			tok, endOfList := getToken(dec)
-			if endOfList {
-				break
-			}
-			if _, isStartList := tok.(StartList); !isStartList {
-				panic(fmt.Sprintf("wanted StartList, got %T", tok))
-			}
+		doUntilEndofList(dec, func(i int, tok Token) {
+			typeMustMatch(StartList{}, tok)
+
 			key := reflect.New(v.Type().Key()).Elem()
 			tok, _ = getToken(dec)
 			setValueFromToken(dec, tok, key)
@@ -113,15 +92,15 @@ func decodeList(dec *Decoder, v reflect.Value) {
 			tok, _ = getToken(dec)
 			setValueFromToken(dec, tok, value)
 			v.SetMapIndex(key, value)
+
 			tok, _ = getToken(dec)
-			if _, isEnd := tok.(EndList); !isEnd {
-				panic(fmt.Sprintf("wanted EndList, got %T", tok))
-			}
-		}
+			typeMustMatch(EndList{}, tok)
+		})
 	default:
 		panic(fmt.Sprintf("cannot decode list into %v", v.Type()))
 	}
 }
+
 func getToken(dec *Decoder) (Token, bool) {
 	tok, err := dec.Token()
 	if err == io.EOF {
@@ -132,4 +111,20 @@ func getToken(dec *Decoder) (Token, bool) {
 	}
 	_, isEnd := tok.(EndList)
 	return tok, isEnd
+}
+
+func doUntilEndofList(dec *Decoder, f func(int, Token)) {
+	for i := 0; ; i++ {
+		tok, endOfList := getToken(dec)
+		if endOfList {
+			break
+		}
+		f(i, tok)
+	}
+}
+
+func typeMustMatch(want, got interface{}) {
+	if reflect.TypeOf(want) != reflect.TypeOf(got) {
+		panic(fmt.Sprintf("wanted %T, got %T", want, got))
+	}
 }
