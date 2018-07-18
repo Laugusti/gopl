@@ -9,6 +9,7 @@ func TestPack(t *testing.T) {
 		want   string
 	}{
 		{"", struct{ a int }{3}, "?a=3"},
+		{"", struct{ a []int }{[]int{1, 2, 3}}, "?a=1&a=2&a=3"},
 		{"http://example.com", struct {
 			a string `http:"b"`
 		}{"testing"}, "http://example.com?b=testing"},
