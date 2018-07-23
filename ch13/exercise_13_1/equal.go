@@ -68,7 +68,6 @@ func equal(x, y reflect.Value, seen map[comparison]bool) bool {
 		}
 		return true
 
-		// ...struct and map cases omitted for brevity...
 	case reflect.Map:
 		if !equal(reflect.ValueOf(x.MapKeys()), reflect.ValueOf(y.MapKeys()), seen) {
 			return false
