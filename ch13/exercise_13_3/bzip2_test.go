@@ -20,7 +20,10 @@ func TestConcurrentWrites(t *testing.T) {
 	for i := 0; i < count; i++ {
 		n.Add(1)
 		go func(i int) {
-			w.Write([]byte(alphabet[i%26 : i%26+1]))
+			_, err := w.Write([]byte(alphabet[i%26 : i%26+1]))
+			if err != nil {
+				t.Fatal(err)
+			}
 			n.Done()
 		}(i)
 	}
