@@ -14,10 +14,13 @@ void bz2free(bz_stream* s) { free(s); }
 import "C"
 
 import (
+	"fmt"
 	"io"
 	"sync"
 	"unsafe"
 )
+
+var streamClosed = fmt.Errorf("the writer was closed")
 
 type writer struct {
 	w      io.Writer // underlying output stream
@@ -42,7 +45,7 @@ func (w *writer) Write(data []byte) (int, error) {
 		w.mu.Unlock()
 	}()
 	if w.stream == nil {
-		panic("closed")
+		return 0, streamClosed
 	}
 	var total int // uncompressed bytes written
 
@@ -68,7 +71,7 @@ func (w *writer) Close() error {
 		w.mu.Unlock()
 	}()
 	if w.stream == nil {
-		panic("closed")
+		return nil // stream already closed
 	}
 	defer func() {
 		C.BZ2_bzCompressEnd(w.stream)

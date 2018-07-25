@@ -21,9 +21,10 @@ func TestConcurrentWrites(t *testing.T) {
 	for i := 0; i < count; i++ {
 		n.Add(1)
 		go func(i int) {
-			_, err := w.Write([]byte(alphabet))
-			if err != nil {
-				t.Fatal(err)
+			if i < count/2 {
+				w.Write([]byte(alphabet))
+			} else {
+				w.Close()
 			}
 			n.Done()
 		}(i)
@@ -34,11 +35,11 @@ func TestConcurrentWrites(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(b) != count*len(alphabet) {
-		t.Errorf("expected %d uncompressed bytes written, got %d", count*len(alphabet), len(b))
+	if len(b)%len(alphabet) != 0 {
+		t.Errorf("expected multiple of %d uncompressed bytes written, got %d", len(alphabet), len(b))
 	}
-	if string(b) != strings.Repeat(alphabet, count) {
+	if string(b) != strings.Repeat(alphabet, len(b)/len(alphabet)) {
 		t.Errorf("unexpected data written")
 	}
-	t.Log(string(b))
+	// t.Log(string(b))
 }
