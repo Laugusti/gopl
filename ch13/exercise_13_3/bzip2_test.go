@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"compress/bzip2"
 	"io/ioutil"
+	"strings"
 	"sync"
 	"testing"
 )
@@ -20,7 +21,7 @@ func TestConcurrentWrites(t *testing.T) {
 	for i := 0; i < count; i++ {
 		n.Add(1)
 		go func(i int) {
-			_, err := w.Write([]byte(alphabet[i%26 : i%26+1]))
+			_, err := w.Write([]byte(alphabet))
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -33,8 +34,11 @@ func TestConcurrentWrites(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(b) != count {
-		t.Errorf("expected %d unencrypted bytes written, got %d", count, len(b))
+	if len(b) != count*len(alphabet) {
+		t.Errorf("expected %d uncompressed bytes written, got %d", count*len(alphabet), len(b))
 	}
-	// t.Log(string(b))
+	if string(b) != strings.Repeat(alphabet, count) {
+		t.Errorf("unexpected data written")
+	}
+	t.Log(string(b))
 }
